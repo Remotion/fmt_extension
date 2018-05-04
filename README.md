@@ -21,6 +21,9 @@ fmt::print(" tuple {} \n", tu1);
 fmt::print(" make_tuple {} \n", std::make_tuple(1, 2, 3));
 fmt::print(" make_tuple {} \n", std::make_tuple(1, std::string("str"), 3));
 
+my_struct mst{13,"my struct"}; // struct with get, std::tuple_size, std::tuple_element interface.
+fmt::print(" my_struct {} \n", mst);
+
 std::string sarr[] = { "1","2" };
 gsl::span<std::string> sp{sarr};
 
