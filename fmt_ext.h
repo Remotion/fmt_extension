@@ -18,6 +18,55 @@
 #endif
 
 namespace fmt_ext {
+
+template <typename Char>
+struct formatting_base {
+	template <typename ParseContext>
+	FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) { return ctx.begin(); }
+};
+
+template <typename Char, typename Enable = void>
+struct formatting_range : formatting_base<Char>
+{
+	Char prefix    = '{';
+	Char delimiter	= ',';
+	Char postfix   = '}';
+	bool add_spaces = true;
+};
+
+template <typename Char, typename Enable = void>
+struct formatting_tuple : formatting_base<Char>
+{
+	Char prefix    = '[';
+	Char delimiter = ',';
+	Char postfix   = ']';
+	bool add_spaces = true;
+};
+
+template<typename RangeT, typename OutputIterator>
+void copy(const RangeT &range, OutputIterator out) {
+	for(const auto& it: range) {
+		*out++ = it;
+	}
+}
+
+template<typename OutputIterator>
+void copy(const char *str, OutputIterator out) {
+	const char* p_curr = str;
+	while (*p_curr) {
+		*out++ = *p_curr++;
+	}
+}
+
+template<typename OutputIterator>
+void copy(const char ch, OutputIterator out) {
+	*out++ = ch;
+}
+
+} // namespace fmt_ext
+
+
+namespace fmt_ext {
 namespace meta {
 
 /// Return true value if T has std::string interface, like std::string_view.
@@ -99,24 +148,29 @@ void for_each(Tuple&& tup, F&& f) {
 namespace fmt {
 
 // =====================================================================================================================
-template<typename StructuredBindingsT>
-struct formatter< StructuredBindingsT, char
-	, std::enable_if_t<fmt_ext::meta::is_tuple_like_v<StructuredBindingsT>> >
+template<typename TupleT, typename Char>
+struct formatter< TupleT, Char
+	, std::enable_if_t<fmt_ext::meta::is_tuple_like_v<TupleT>> >
 {
+	fmt_ext::formatting_tuple<Char> formating;
+
 	template <typename ParseContext>
-	FMT_CONSTEXPR static auto parse(ParseContext &ctx) -> decltype(ctx.begin()) { return ctx.begin(); }
+	FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
+		return formating.parse(ctx);
+	}
 
 	template <typename FormatContext = format_context>
-	auto format(const StructuredBindingsT &values, FormatContext &ctx) -> decltype(ctx.out()) {
+	auto format(const TupleT &values, FormatContext &ctx) -> decltype(ctx.out()) {
 		auto out = ctx.out();
-		*out++ = '[';
 		std::ptrdiff_t i = 0;
+		fmt_ext::copy(formating.prefix, out);
 		fmt_ext::meta::for_each(values, [&](const auto &v) {
-			if (i++ > 0) { *out++ = ','; }
-			format_to(out, " {}", v);
+			if (i++ > 0) { fmt_ext::copy(formating.delimiter, out); }
+			if (formating.add_spaces) { format_to(out, " {}", v); }
+			else { format_to(out, "{}", v); }
 		});
-		*out++ = ' ';
-		*out++ = ']';
+		if (formating.add_spaces) { *out++ = ' '; }
+		fmt_ext::copy(formating.postfix, out);
 
 		return ctx.out();
 	}
@@ -129,31 +183,34 @@ struct formatter< StructuredBindingsT, char
 namespace fmt {
 
 
-template<typename ContainerT, typename Char>
-struct formatter <ContainerT, Char, std::enable_if_t<fmt_ext::meta::is_range_v<ContainerT>> > 
+template<typename RangeT, typename Char>
+struct formatter <RangeT, Char, std::enable_if_t<fmt_ext::meta::is_range_v<RangeT>> > 
 {
 	static constexpr std::ptrdiff_t range_length_limit = FMT_RANGE_OUTPUT_LENGTH_LIMIT; // show only up to N items from the range.
 
+	fmt_ext::formatting_range<Char> formating;
+
 	template <typename ParseContext>
-	static FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
-		return ctx.begin();
+	FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
+		return formating.parse(ctx);
 	}
 
 	template <typename FormatContext>
-	auto format(const ContainerT &values, FormatContext &ctx) -> decltype(ctx.out()) {
+	auto format(const RangeT &values, FormatContext &ctx) -> decltype(ctx.out()) {
 		auto out = ctx.out();
-		*out++ = '{';
+		fmt_ext::copy(formating.prefix, out);
 		std::ptrdiff_t i = 0;
 		for (const auto& it : values) {
-			if (i > 0) { *out++ = ','; }
-			format_to(out, " {}", it);
+			if (i > 0) { fmt_ext::copy(formating.delimiter, out); }
+			if (formating.add_spaces) { format_to(out, " {}", it); }
+			else { format_to(out, "{}", it); }
 			if (++i > range_length_limit) {
 				format_to(out, " ... <other elements>");
 				break;
 			}
 		}
-		*out++ = ' '; 
-		*out++ = '}';
+		if (formating.add_spaces) { *out++ = ' '; }
+		fmt_ext::copy(formating.postfix, out);
 		return ctx.out();
 	}
 };
