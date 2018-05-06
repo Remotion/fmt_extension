@@ -53,6 +53,8 @@ struct my_struct {
       else if constexpr (N == 1) return std::string_view{ str };
   }
 };
+
+
 template <std::size_t N>
 decltype(auto) get(const my_struct& s) noexcept { return s.get<N>(); }
 
