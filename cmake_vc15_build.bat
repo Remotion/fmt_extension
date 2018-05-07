@@ -35,9 +35,3 @@ call "debug/%EXE_NAME%.exe"
 echo.
 echo _____________________________________________________________________________________________
 pause 
-
-:: --open ???
-:: --open testProj.sln
-:: -DCMAKE_USE_RELATIVE_PATHS=true 
-:: -DCMAKE_COLOR_MAKEFILE=ON
-::pause 
