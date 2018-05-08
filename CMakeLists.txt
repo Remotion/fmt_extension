@@ -23,8 +23,8 @@ endif()
 # {fmt}
 FetchContent_Declare(
   fmt5
-  GIT_REPOSITORY "https://github.com/Remotion/fmt"
-  GIT_TAG        "5.0.0a"
+  GIT_REPOSITORY "https://github.com/fmtlib/fmt"
+  GIT_TAG        "7d3de4971500e50f32e212b8956b3cde1f2620b3"
 )
 
 FetchContent_GetProperties(fmt5) 

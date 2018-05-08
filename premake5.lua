@@ -52,4 +52,10 @@ workspace "fmt_extension"
 			"./**.cc",
 			"./**.cpp",
 		}
+		
+		removefiles  {
+			"./build*/**.*",
+			"./__*/**.*",
+			"./#*/**.*"
+		}
 
