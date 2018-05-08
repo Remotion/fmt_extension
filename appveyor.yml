@@ -1,0 +1,37 @@
+version: '{build}'
+branches:
+  only:
+  - master
+image:
+- Visual Studio 2017
+configuration:
+# - Release
+- Debug
+platform:
+- x64
+environment:
+  matrix:
+  - arch: Win64
+  # - arch: #does not work, Release|x64 not a valid target
+matrix:
+  fast_finish: true
+
+init:
+- set arch=
+- if "%arch%"=="Win64" ( set arch= Win64)
+- echo %arch%
+- echo %APPVEYOR_BUILD_WORKER_IMAGE%
+- if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" ( set generator="Visual Studio 15 2017%arch%" )
+- echo %generator%
+
+before_build:
+- cmd: |-
+    mkdir build_vs2017
+    cd build_vs2017
+    cmake --version
+    cmake .. -G %generator%
+
+build:
+  project: build_vs2017\fmt_extension.sln
+  verbosity: minimal
+  parallel: true
