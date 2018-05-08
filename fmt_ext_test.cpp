@@ -17,7 +17,6 @@ static_assert( fmt_ext::meta::is_range_v<std::array<int32_t,7>>);
 
 static_assert( fmt_ext::meta::is_tuple_like_v<std::tuple<int32_t,float,std::string>>);
 
-
 #if 1 /// Configurable formatting. 
 
 namespace fmt_ext {
@@ -75,6 +74,7 @@ static_assert( fmt_ext::meta::is_tuple_like_v<my_struct>);
 
 
 int main() {
+    fmt::print_colored(fmt::green, " {{fmt}} {} \n",FMT_VERSION);
 
     std::vector<int32_t> iv{1,2,3,5,7,11};
     auto ivf = fmt::format("{}", iv);

@@ -50,10 +50,10 @@ if(NOT gsl_POPULATED)
 endif()
 
 ####################################################################################################
-
 add_executable(fmt_extension
   fmt_ext_test.cpp
 )
+target_include_directories(fmt_extension PUBLIC ./include)
 
 target_link_libraries(fmt_extension Catch fmt GSL)
 

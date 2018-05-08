@@ -15,7 +15,7 @@ workspace "fmt_extension"
 	flags {  } 
 	defines { }
 	
-	includedirs {  "../" }
+	includedirs {  "../", "./include", "../include" }
 
 	vpaths {
 	   ["Headers/*"] = { "**.h", "**.hxx", "**.hpp" },

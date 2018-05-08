@@ -142,7 +142,7 @@ constexpr auto fwd(T&& val, type_tag<Aggregate>) {
 
 #define PP_ID(V)	V
 #define PP_FWD(V)  fwd(V, tag)
-#define ARGS_I(I, O) ARGS_##I(O)
+#define ARGS_I(I, O) PP_ARGS_##I(O)
 
 /// as_tuple  Makes a tuple of references on the given aggregate.
 template <class Aggregate>
@@ -158,15 +158,15 @@ constexpr auto to_tuple_impl(Aggregate&& aggregate, size_t_t<0>) noexcept {
 
 
 #define PP_TUPLE_IMPL(I)											\
-template <class Ag>													\
-constexpr auto as_tuple_impl(Ag& ag, size_t_t<I>) noexcept {		\
-	auto&[ARGS_I(I, PP_ID)] = ag;									\
+template <class Agg>												\
+constexpr auto as_tuple_impl(Agg& agg, size_t_t<I>) noexcept {		\
+	auto&[ARGS_I(I, PP_ID)] = agg;									\
 	return std::forward_as_tuple(ARGS_I(I, PP_ID));					\
 }																	\
-template <class Ag>													\
-constexpr auto to_tuple_impl(Ag&& ag, size_t_t<I>) noexcept {		\
-	constexpr auto tag = type_tag<Ag>{};							\
-	auto&&[ARGS_I(I, PP_ID)] = ag;									\
+template <class Agg>												\
+constexpr auto to_tuple_impl(Agg&& agg, size_t_t<I>) noexcept {		\
+	constexpr auto tag = type_tag<Agg>{};							\
+	auto&&[ARGS_I(I, PP_ID)] = agg;									\
 	return std::make_tuple(ARGS_I(I,PP_FWD));						\
 }
 
@@ -265,6 +265,7 @@ PP_TUPLE_IMPL(91)
 PP_TUPLE_IMPL(92)
 PP_TUPLE_IMPL(93)
 PP_TUPLE_IMPL(94)
+
 
 #undef PP_TUPLE_IMPL
 

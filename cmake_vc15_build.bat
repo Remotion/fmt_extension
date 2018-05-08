@@ -20,7 +20,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 @call "%VS2017INSTALLDIR%\VC\Auxiliary\Build\vcvars64.bat"
 
-msbuild "%PROJECT_NAME%.sln" /p:Configuration=debug /p:Platform=x64 /m 
+msbuild "%PROJECT_NAME%.sln" /p:Configuration=debug /p:Platform=x64 /maxcpucount /nologo /verbosity:m
 if %ERRORLEVEL% NEQ 0 (
   echo "Error: " %ERRORLEVEL%
   pause
