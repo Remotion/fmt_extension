@@ -37,16 +37,17 @@ endif()
 ####################################################################################################
 # gsl
 FetchContent_Declare(
-  GSL
+  gsl
   GIT_REPOSITORY "https://github.com/Microsoft/GSL"
-  GIT_TAG        "v1.0.0"
+  GIT_TAG "5cbde3008aa43a9c5f6c219ee15b8388336d4433"
 )
 
-FetchContent_GetProperties(GSL) 
+FetchContent_GetProperties(gsl) 
 if(NOT gsl_POPULATED)
-  FetchContent_Populate(GSL)
-  message(STATUS "GSL source dir: ${GSL_SOURCE_DIR}")
-  add_subdirectory(${GSL_SOURCE_DIR} ${GSL_BINARY_DIR})
+  FetchContent_Populate(gsl)
+  message(STATUS "gsl source dir: ${gsl_SOURCE_DIR}")
+  # message(STATUS "gsl binary dir: ${gsl_BINARY_DIR}")
+  add_subdirectory(${gsl_SOURCE_DIR} ${gsl_BINARY_DIR})
 endif()
 
 ####################################################################################################
