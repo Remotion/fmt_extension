@@ -10,6 +10,7 @@
 static_assert(FMT_VERSION >= 50000,"Only {fmt} 5.0 or higher is supported.");
 
 #include "fmt_ext.h"
+#include "fmt_rgb.h"
 
 
 static_assert( fmt_ext::meta::is_range_v<std::vector<int32_t>>);
@@ -106,6 +107,13 @@ int main() {
     gsl::span<std::string> sp{sarr};
 
     fmt::print(" span {} \n", sp);
+
+    // rgb output support
+    using fmt::rgb;
+    fmt::print(rgb{155,22,99},"rgb {} {} {} \n",155,22,99);
+    fmt::print(rgb{155,222,99},"rgb {} {} {} \n",155,222,99);
+    fmt::print(rgb{55,22,199},rgb{200,255,200},"{}\n","rgb{55,22,199}, rgb{200,255,200}");
+
 
     return 0;
 }

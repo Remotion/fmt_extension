@@ -21,46 +21,46 @@ namespace fmt_ext {
 
 template <typename Char>
 struct formatting_base {
-	template <typename ParseContext>
-	FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) { return ctx.begin(); }
+    template <typename ParseContext>
+    FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) { return ctx.begin(); }
 };
 
 template <typename Char, typename Enable = void>
 struct formatting_range : formatting_base<Char>
 {
-	Char prefix    = '{';
-	Char delimiter	= ',';
-	Char postfix   = '}';
-	bool add_spaces = true;
+    Char prefix    = '{';
+    Char delimiter	= ',';
+    Char postfix   = '}';
+    bool add_spaces = true;
 };
 
 template <typename Char, typename Enable = void>
 struct formatting_tuple : formatting_base<Char>
 {
-	Char prefix    = '[';
-	Char delimiter = ',';
-	Char postfix   = ']';
-	bool add_spaces = true;
+    Char prefix    = '[';
+    Char delimiter = ',';
+    Char postfix   = ']';
+    bool add_spaces = true;
 };
 
 template<typename RangeT, typename OutputIterator>
 void copy(const RangeT &range, OutputIterator out) {
-	for(const auto& it: range) {
-		*out++ = it;
-	}
+    for(const auto& it: range) {
+        *out++ = it;
+    }
 }
 
 template<typename OutputIterator>
 void copy(const char *str, OutputIterator out) {
-	const char* p_curr = str;
-	while (*p_curr) {
-		*out++ = *p_curr++;
-	}
+    const char* p_curr = str;
+    while (*p_curr) {
+        *out++ = *p_curr++;
+    }
 }
 
 template<typename OutputIterator>
 void copy(const char ch, OutputIterator out) {
-	*out++ = ch;
+    *out++ = ch;
 }
 
 } // namespace fmt_ext
@@ -72,14 +72,14 @@ namespace meta {
 /// Return true value if T has std::string interface, like std::string_view.
 template<typename T>
 class is_like_std_string {
-	template<typename U> static auto check(U* p) -> decltype(
-		  p->find('a')
-		, p->length()
-		, p->data()
-		, int());
-	template<typename  > static void check(...);
+    template<typename U> static auto check(U* p) -> decltype(
+          p->find('a')
+        , p->length()
+        , p->data()
+        , int());
+    template<typename  > static void check(...);
 public:
-	static const bool value = !std::is_void< decltype(check<T>(nullptr)) >::value;
+    static const bool value = !std::is_void< decltype(check<T>(nullptr)) >::value;
 };
 
 template<typename T>
@@ -93,11 +93,11 @@ struct is_range_ : std::false_type {};
 
 template<typename T>
 struct is_range_<T,
-	std::conditional_t< false,
-	conditional_helper<
-	decltype(std::declval<T>().begin()),
-	decltype(std::declval<T>().end())
-	>, void>
+    std::conditional_t< false,
+    conditional_helper<
+    decltype(std::declval<T>().begin()),
+    decltype(std::declval<T>().end())
+    >, void>
 > : std::true_type{};
 
 template<typename T>
@@ -107,13 +107,13 @@ constexpr bool is_range_v = is_range_<T>::value && !is_like_std_string<T>::value
 /// tuple_size and tuple_element check.
 template<typename T>
 class is_tuple_like_ {
-	template<typename U> static auto check(U* p) -> decltype(
-		std::tuple_size< U >::value, 
-		std::declval<typename std::tuple_element<0, U>::type> (),
-		int());
-	template<typename  > static void check(...);
+    template<typename U> static auto check(U* p) -> decltype(
+        std::tuple_size< U >::value, 
+        std::declval<typename std::tuple_element<0, U>::type> (),
+        int());
+    template<typename  > static void check(...);
 public:
-	static constexpr bool value = !std::is_void_v< decltype(check<T>(nullptr)) >;
+    static constexpr bool value = !std::is_void_v< decltype(check<T>(nullptr)) >;
 };
 
 template<typename T>
@@ -123,12 +123,12 @@ constexpr bool is_tuple_like_v = is_tuple_like_<T>::value && !is_range_<T>::valu
 //=--------------------------------------------------------------------------------------------------------------------
 template<size_t... Is, class Tuple, class F>
 void for_each(std::index_sequence<Is...>, Tuple&& tup, F&& f) noexcept {
-	using std::get;
-	// using free function get<I>(T) now.
-	const int _[] = { 0,
-		((void)f(get<Is>(tup)),
-		0)... };
-	(void)_; // blocks warnings
+    using std::get;
+    // using free function get<I>(T) now.
+    const int _[] = { 0,
+        ((void)f(get<Is>(tup)),
+        0)... };
+    (void)_; // blocks warnings
 }
 //=--------------------------------------------------------------------------------------------------------------------
 template<class T>
@@ -138,8 +138,8 @@ get_indexes(T const&) {	return {}; }
 //=--------------------------------------------------------------------------------------------------------------------
 template<class Tuple, class F>
 void for_each(Tuple&& tup, F&& f) {
-	const auto indexes = get_indexes(tup);
-	for_each(indexes, std::forward<Tuple>(tup), std::forward<F>(f));
+    const auto indexes = get_indexes(tup);
+    for_each(indexes, std::forward<Tuple>(tup), std::forward<F>(f));
 }
 
 } // namespace meta
@@ -150,30 +150,30 @@ namespace fmt {
 // =====================================================================================================================
 template<typename TupleT, typename Char>
 struct formatter< TupleT, Char
-	, std::enable_if_t<fmt_ext::meta::is_tuple_like_v<TupleT>> >
+    , std::enable_if_t<fmt_ext::meta::is_tuple_like_v<TupleT>> >
 {
-	fmt_ext::formatting_tuple<Char> formating;
+    fmt_ext::formatting_tuple<Char> formating;
 
-	template <typename ParseContext>
-	FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
-		return formating.parse(ctx);
-	}
+    template <typename ParseContext>
+    FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
+        return formating.parse(ctx);
+    }
 
-	template <typename FormatContext = format_context>
-	auto format(const TupleT &values, FormatContext &ctx) -> decltype(ctx.out()) {
-		auto out = ctx.out();
-		std::ptrdiff_t i = 0;
-		fmt_ext::copy(formating.prefix, out);
-		fmt_ext::meta::for_each(values, [&](const auto &v) {
-			if (i++ > 0) { fmt_ext::copy(formating.delimiter, out); }
-			if (formating.add_spaces) { format_to(out, " {}", v); }
-			else { format_to(out, "{}", v); }
-		});
-		if (formating.add_spaces) { *out++ = ' '; }
-		fmt_ext::copy(formating.postfix, out);
+    template <typename FormatContext = format_context>
+    auto format(const TupleT &values, FormatContext &ctx) -> decltype(ctx.out()) {
+        auto out = ctx.out();
+        std::ptrdiff_t i = 0;
+        fmt_ext::copy(formating.prefix, out);
+        fmt_ext::meta::for_each(values, [&](const auto &v) {
+            if (i++ > 0) { fmt_ext::copy(formating.delimiter, out); }
+            if (formating.add_spaces) { format_to(out, " {}", v); }
+            else { format_to(out, "{}", v); }
+        });
+        if (formating.add_spaces) { *out++ = ' '; }
+        fmt_ext::copy(formating.postfix, out);
 
-		return ctx.out();
-	}
+        return ctx.out();
+    }
 };
 
 } // namespace fmt
@@ -186,33 +186,33 @@ namespace fmt {
 template<typename RangeT, typename Char>
 struct formatter <RangeT, Char, std::enable_if_t<fmt_ext::meta::is_range_v<RangeT>> > 
 {
-	static constexpr std::ptrdiff_t range_length_limit = FMT_RANGE_OUTPUT_LENGTH_LIMIT; // show only up to N items from the range.
+    static constexpr std::ptrdiff_t range_length_limit = FMT_RANGE_OUTPUT_LENGTH_LIMIT; // show only up to N items from the range.
 
-	fmt_ext::formatting_range<Char> formating;
+    fmt_ext::formatting_range<Char> formating;
 
-	template <typename ParseContext>
-	FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
-		return formating.parse(ctx);
-	}
+    template <typename ParseContext>
+    FMT_CONSTEXPR auto parse(ParseContext &ctx) -> decltype(ctx.begin()) {
+        return formating.parse(ctx);
+    }
 
-	template <typename FormatContext>
-	auto format(const RangeT &values, FormatContext &ctx) -> decltype(ctx.out()) {
-		auto out = ctx.out();
-		fmt_ext::copy(formating.prefix, out);
-		std::ptrdiff_t i = 0;
-		for (const auto& it : values) {
-			if (i > 0) { fmt_ext::copy(formating.delimiter, out); }
-			if (formating.add_spaces) { format_to(out, " {}", it); }
-			else { format_to(out, "{}", it); }
-			if (++i > range_length_limit) {
-				format_to(out, " ... <other elements>");
-				break;
-			}
-		}
-		if (formating.add_spaces) { *out++ = ' '; }
-		fmt_ext::copy(formating.postfix, out);
-		return ctx.out();
-	}
+    template <typename FormatContext>
+    auto format(const RangeT &values, FormatContext &ctx) -> decltype(ctx.out()) {
+        auto out = ctx.out();
+        fmt_ext::copy(formating.prefix, out);
+        std::ptrdiff_t i = 0;
+        for (const auto& it : values) {
+            if (i > 0) { fmt_ext::copy(formating.delimiter, out); }
+            if (formating.add_spaces) { format_to(out, " {}", it); }
+            else { format_to(out, "{}", it); }
+            if (++i > range_length_limit) {
+                format_to(out, " ... <other elements>");
+                break;
+            }
+        }
+        if (formating.add_spaces) { *out++ = ' '; }
+        fmt_ext::copy(formating.postfix, out);
+        return ctx.out();
+    }
 };
 
 } // namespace fmt

@@ -18,6 +18,12 @@ if %ERRORLEVEL% NEQ 0 (
   exit 
 )
 
+IF NOT EXIST "%VS2017INSTALLDIR%\VC\Auxiliary\Build\vcvars64.bat" (
+  for /f "usebackq tokens=1* delims=: " %%i in (`vswhere -latest -requires Microsoft.Component.MSBuild`) do (
+    if /i "%%i"=="installationPath" set VS2017INSTALLDIR=%%j
+  )
+)
+
 @call "%VS2017INSTALLDIR%\VC\Auxiliary\Build\vcvars64.bat"
 
 msbuild "%PROJECT_NAME%.sln" /p:Configuration=debug /p:Platform=x64 /maxcpucount /nologo /verbosity:m
