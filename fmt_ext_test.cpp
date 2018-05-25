@@ -110,10 +110,14 @@ int main() {
 
     // rgb output support
     using fmt::rgb;
-    fmt::print(rgb{155,22,99},"rgb {} {} {} \n",155,22,99);
+    fmt::print(rgb(155,22,99),"rgb {} {} {} \n",155,22,99);
     fmt::print(rgb{155,222,99},"rgb {} {} {} \n",155,222,99);
     fmt::print(rgb{55,22,199},rgb{200,255,200},"{}\n","rgb{55,22,199}, rgb{200,255,200}");
 
+    fmt::print(fmt::Aquamarine, "Aquamarine   \n");
+    fmt::print(fmt::YellowGreen, "YellowGreen   \n");
+    fmt::print(fmt::Tomato, "Tomato   \n");
+    fmt::print(fmt::Purple, "Purple   \n");
 
     return 0;
 }
