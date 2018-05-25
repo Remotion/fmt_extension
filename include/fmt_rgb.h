@@ -13,6 +13,9 @@ namespace fmt {
 
 // rgb is a struct for red, green and blue colors.
 struct rgb {
+    constexpr rgb() : r(0), g(0), b(0) {}
+    constexpr rgb(uint8_t r_, uint8_t g_, uint8_t b_) : r(r_), g(g_), b(b_) {}
+    constexpr rgb(uint32_t hex) : r((hex) & 0xFF), g((hex >> 8) & 0xFF), b((hex >> 16) & 0xFF) {}
     uint8_t r;
     uint8_t g;
     uint8_t b;
@@ -20,16 +23,16 @@ struct rgb {
 
 // https://en.wikipedia.org/wiki/ANSI_escape_code
 //-----------------------------------------------------------------------------
-void to_esc(uint8_t c, char out[], int offset) {
+constexpr inline void to_esc(uint8_t c, char out[], int offset) {
     out[offset + 0] = static_cast<char>('0' + c / 100);
     out[offset + 1] = static_cast<char>('0' + c / 10 % 10);
     out[offset + 2] = static_cast<char>('0' + c % 10);
 }
 
-void vprint_rgb(rgb fd, string_view format, format_args args) {
+FMT_FUNC void vprint_rgb(rgb fd, string_view format, format_args args) {
 
     char escape_fd[] = "\x1b[38;2;000;000;000m";
-
+    static constexpr const char RESET_COLOR[] = "\x1b[0m";
     to_esc(fd.r, escape_fd, 7);
     to_esc(fd.g, escape_fd, 11);
     to_esc(fd.b, escape_fd, 15);
@@ -40,11 +43,11 @@ void vprint_rgb(rgb fd, string_view format, format_args args) {
 }
 
 //-----------------------------------------------------------------------------
-void vprint_rgb(rgb fd, rgb bg, string_view format, format_args args) {
+FMT_FUNC void vprint_rgb(rgb fd, rgb bg, string_view format, format_args args) {
 
     char escape_fd[] = "\x1b[38;2;000;000;000m"; // foreground color
     char escape_bg[] = "\x1b[48;2;000;000;000m"; // background color
-
+    static constexpr const char RESET_COLOR[] = "\x1b[0m";
     to_esc(fd.r, escape_fd, 7);
     to_esc(fd.g, escape_fd, 11);
     to_esc(fd.b, escape_fd, 15);
